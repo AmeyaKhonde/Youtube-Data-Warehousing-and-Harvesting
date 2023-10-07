@@ -246,23 +246,23 @@ with tab2:
             connection.commit()
 
 # function to insert Comment data from mongoDB to MySQL
-    def insert_comment_data():
-        collection3 = db[mongo_comment_collection_name]
-        query = "INSERT INTO comments (Comment_id, Video_id, Comment_text, Comment_author, Comment_published_date) VALUES (%s, %s, %s, %s, %s)"
-        # Use find() to retrieve documents with a query condition (e.g., an empty query to fetch all documents)
-        cursor_mongodb = collection3.find()  # MongoDB cursor
-        cursor_mysql = connection.cursor()  # MySQL cursor
+def insert_comment_data():
+    collection3 = db[mongo_comment_collection_name]
+    query = "INSERT INTO comments (comment_id, video_id, comment_text, comment_author, comment_published_date) VALUES (%s, %s, %s, %s, %s)"
+    # Use find() to retrieve documents with a query condition (e.g., an empty query to fetch all documents)
+    cursor_mongodb = collection3.find()  # MongoDB cursor
+    cursor_mysql = connection.cursor()  # MySQL cursor
 
-        for comment in enumerate(cursor_mongodb, start=1):
-            comment_data = (
-                comment['Comment_id'],
-                comment['Video_id'],
-                comment['Comment_text'],
-                comment['Comment_author'],
-                comment['Comment_published_date']
-            )
-            cursor_mysql.execute(query, comment_data)
-            connection.commit()
+    for comment_doc in cursor_mongodb:
+        comment_id = comment_doc['Comment_id']
+        video_id = comment_doc['Video_id']
+        comment_text = comment_doc['Comment_text']
+        comment_author = comment_doc['Comment_author']
+        comment_published_date = comment_doc['Comment_published_date']
+
+        # Now, insert the data into the MySQL table
+        cursor_mysql.execute(query, (comment_id, video_id, comment_text, comment_author, comment_published_date))
+        connection.commit()
 
 if st.button('Submit'):
     cursor.execute(f"SELECT * FROM channel WHERE channel_name = %s", (user_input,))
